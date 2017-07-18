@@ -1,0 +1,69 @@
+{% extends "blog/base.html" %}
+{% load blog_tags %}
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+<h1 class="display-5">{{ post.title }}</h1>
+<hr style="height:1px;border:none;border-top:1px solid #555555;" />
+<p class="date small">
+    发布于 {{ post.publish }} 作者: {{ post.author }}
+</p>
+<p class="small tag">
+    标签:
+    {% for tag in post.tags.all %}
+        <a href='{% url "blog:post_list_by_tag" tag.slug %}'>{{ tag.name }}</a>
+        {% if not forloop.last %}, {% endif %}
+    {% endfor %}
+</p>
+{{ post.body|markdown }}
+
+<p>
+    <a href='{% url "blog:post_share" post.id %}'>
+        分享这篇文章
+    </a>
+</p>
+
+<p class="small">相关文章</p>
+{% for each_post in similar_posts %}
+    <p class="small">
+        <a href='{{ each_post.get_absolute_url }}'>{{ each_post.title }}</a>
+    </p>
+{% empty %}
+    <p class="small">没有相关的帖子</p>
+{% endfor %}
+
+<hr style="height:1px;border:none;border-top:1px solid #555555;" /> <!--分割线-->
+
+{% with comments.count as total_comments %}
+<h5>
+    {{ total_comments }} 条评论
+</h5>
+{% endwith %}
+
+{% for comment in comments %}
+    <div class="comment">
+        <p class="lead">
+            {{ comment.name }}
+            <small class="text-muted">{{ forloop.counter }} 楼  {{ comment.created }}</small>
+        </p>
+
+        <p class="lead">
+            {{ comment.body|linebreaks }}
+        </p>
+    </div>
+    {% empty %}
+    <p>还没有评论，赶紧抢沙发</p>
+{% endfor %}
+
+{% if new_comment %}
+  <h5>评论成功.</h5>
+{% else %}
+  <h5>我也来评论</h5>
+  <form action="." method="post">
+    {{ comment_form.as_p }}
+    {% csrf_token %}
+    <p><input type="submit" value="确定"></p>
+  </form>
+{% endif %}
+
+{% endblock %}

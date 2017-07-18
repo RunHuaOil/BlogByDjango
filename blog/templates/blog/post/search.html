@@ -1,0 +1,23 @@
+{% extends "blog/base.html" %}
+{% block title %}搜索{% endblock %}
+{% block content %}
+    {% if "query" in request.GET %}
+        <h1>在文章中搜索: "{{ cd.query }}"</h1>
+        <h3>找到 {{ total_results }} 个相关文章</h3>
+        {% for result in results %}
+            {% with post=result.object %}
+                <h4><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h4>           
+                {{ post.body|slice:"30" }}
+            {% endwith %}
+            {% empty %}
+                   <p>没搜索到相关内容.</p>
+        {% endfor %}    
+        <p><a href='{% url "blog:post_search" %}' >重新搜索</a></p>
+    {% else %}
+        <h1>文章搜索</h1>
+        <form action="." method="get">
+            {{ form.as_p }}
+            <input type="submit" value="搜索">
+        </form>
+    {% endif %}
+{% endblock %}
